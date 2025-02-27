@@ -1,8 +1,7 @@
-import Data
 import Model
 import pytest
 import math
-from Data import Point
+from Data import Point, DataSet
 
 
 def test_buildModelClass():
@@ -10,13 +9,22 @@ def test_buildModelClass():
     assert model.nclassifiers == 5
 
 
-def test_modelPenalties():
+def test_modelPenalties_step():
     model1 = Model.KNNPenalized(0)
     model2 = Model.KNNPenalized(5)
     model3 = Model.KNNPenalized(10)
     assert model1.penalties == []
     assert model2.penalties == [1, 0.8, 0.6, 0.4, 0.2]
     assert model3.penalties == [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+
+
+def test_modelPenalties_other():
+    model1 = Model.KNNPenalized(5, 'inverse')
+    model2 = Model.KNNPenalized(5, 'inverse square')
+    model3 = Model.KNNPenalized(5, 'exponential')
+    assert model1.penalties == [1.0, 0.5, 0.33333, 0.25, 0.2]
+    assert model2.penalties == [1.0, 0.25, 0.11111, 0.0625, 0.04]
+    assert model3.penalties == [1.0, 0.5, 0.25, 0.125, 0.0625]
 
 
 @pytest.mark.parametrize("a,b,expected",
@@ -112,11 +120,11 @@ def test_classifyPoints():
 def test_splitDataset():
     model = Model.KNNPenalized(4)
 
-    point1 = Data.Point((5, 2), 'Class1')
-    point2 = Data.Point((6, 9), 'Class2')
-    point3 = Data.Point((-1, -3), 'Class3')
-    point4 = Data.Point((-9, 10), 'Class4')
-    dataset = Data.DataSet([point1, point2, point3, point4])
+    point1 = Point((5, 2), 'Class1')
+    point2 = Point((6, 9), 'Class2')
+    point3 = Point((-1, -3), 'Class3')
+    point4 = Point((-9, 10), 'Class4')
+    dataset = DataSet([point1, point2, point3, point4])
     train_set, test_set = model.split_dataset(dataset, 0.5)
     assert len(test_set.points) > 0
     assert len(train_set.points) > 0

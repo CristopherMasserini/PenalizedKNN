@@ -1,19 +1,27 @@
 import math
 from sklearn import metrics
 import random
-from .Data import Point, TestTrainPoint, DataSet
+from Data import Point, TestTrainPoint, DataSet
 
 
 class KNNPenalized:
-    def __init__(self, nclassifiers):
+    def __init__(self, nclassifiers, penType='step'):
         self.nclassifiers = nclassifiers
-        self.penalties = self.calculate_step_penalties()
+        self.penalties = self.calculate_step_penalties(penType)
 
-    def calculate_step_penalties(self):
+    def calculate_step_penalties(self, penalty_type):
         penalties = []
         try:
-            step = 1 / self.nclassifiers
-            penalties = [round(1 - (i*step), 5) for i in range(0, self.nclassifiers)]
+            if penalty_type == 'step':
+                step = 1 / self.nclassifiers
+                penalties = [round(1 - (i * step), 5) for i in range(0, self.nclassifiers)]
+            elif penalty_type == 'inverse':
+                penalties = [round(1/i, 5) for i in range(1, self.nclassifiers+1)]
+            elif penalty_type == 'inverse square':
+                penalties = [round(1/(i**2), 5) for i in range(1, self.nclassifiers+1)]
+            elif penalty_type == 'exponential':
+                penalties = [round(1/(2**i), 5) for i in range(0, self.nclassifiers)]
+
         except ZeroDivisionError:
             pass
 
