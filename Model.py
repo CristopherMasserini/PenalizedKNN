@@ -1,7 +1,5 @@
 import math
 from sklearn import metrics
-import random
-from Data import Point, TestTrainPoint, DataSet
 
 
 class KNNPenalized:
@@ -42,7 +40,7 @@ class KNNPenalized:
                 distance += abs(a[i] - b[i])
             return distance
 
-    def closest_point_check(self, point: Point, all_points, dist_type='euclidean'):
+    def closest_point_check(self, point, all_points, dist_type='euclidean'):
         # Assumption that point is not in all_points
         # Other distance type is 'taxi'
         closest_point = None
@@ -64,7 +62,7 @@ class KNNPenalized:
 
         return closest_point, closest_point_distance
 
-    def closest_n_points(self, n, point: Point, all_points, dist_type='euclidean'):
+    def closest_n_points(self, n, point, all_points, dist_type='euclidean'):
         search_points = all_points.copy()
         closest_neighbors = {}
         for i in range(0, n):
@@ -76,7 +74,7 @@ class KNNPenalized:
 
         return closest_neighbors
 
-    def classify_point(self, point: Point, all_points, dist_type='euclidean'):
+    def classify_point(self, point, all_points, dist_type='euclidean'):
         n_closest_neighbors = self.closest_n_points(self.nclassifiers,
                                                     point,
                                                     all_points,
@@ -92,7 +90,7 @@ class KNNPenalized:
 
         return max(label_scores, key=label_scores.get)
 
-    def classify_points(self, input_points: DataSet, dataset: DataSet, dist_type='euclidean', testing=False):
+    def classify_points(self, input_points, dataset, dist_type='euclidean', testing=False):
         for point in input_points.points:
             all_points = dataset.points
             label_classified = self.classify_point(point, all_points, dist_type)
@@ -103,20 +101,7 @@ class KNNPenalized:
 
         return input_points
 
-    def split_dataset(self, dataset, split_size):
-        test_set = DataSet()
-        train_set = DataSet()
-        for point in dataset.points:
-            if random.random() <= split_size:
-                point_test = TestTrainPoint(point.location, point.label)
-                test_set.points.append(point_test)
-            else:
-                train_set.points.append(point)
-
-        return test_set, train_set
-
-    def test_model(self, all_data: DataSet, split_size, label_names, dist_type='euclidean'):
-        test_set, train_set = self.split_dataset(all_data, split_size)
+    def test_model(self, test_set, train_set, label_names, dist_type='euclidean'):
         test_points_labeled = self.classify_points(test_set, train_set, dist_type=dist_type, testing=True)
 
         label_given = []
